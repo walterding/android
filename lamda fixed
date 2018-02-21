@@ -1,0 +1,132 @@
+函数式编程中不动点函数原理和实现
+
+感觉关于不动点函数的讲解网上没有说的特别清楚的，我来解释一下。
+首先不动点函数解决的是递归问题，准确的说是匿名函数的递归问题，匿名函数没有函数名称很难直接自己构建递归关系，所以需要依赖不动点函数来进行递归。
+
+我们用乘法计算来举例，通过加法递归来实现乘法
+普通的实现如下：
+f(x,0)=0
+f(x,y)=x+f(x,y-1)
+
+当然这在具备函数名的时候很容易实现
+function mult(x,y){
+if (y==0){
+return 0
+}else{
+x+mult(x,y-1)
+}
+}
+
+在匿名函数时就比较困难了，首先因为无法利用自己递归，我们需要引入一个外部函数
+
+function anonymousMult(f,x,y){
+if (y==0){
+return 0
+}else{
+x+f()(x,y-1)
+}
+}
+
+其中如果要实现递归关系f()的执行结果就要满足如下函数形式
+anonymousMult f
+这样才能满足递归条件
+
+这样核心问题就变成了构建f这样一个函数，而这个函数就是不动点函数
+
+这个函数的形式如下
+λf.(λs.(f (s s)) λs.(f (s s)))(anonymousMult)
+
+代入anonymousMult =>
+(λs.(anonymousMult (s s)) λs.(anonymousMult (s s)))
+
+执行一下(将右边的λs.(anonymousMult (s s))代入左边表达式的λs)变为
+anonymousMult(λs.(anonymousMult (s s)) λs.(anonymousMult (s s)))
+
+满足了上面提到的递归条件
+
+我们可以用3*2作为例子演示一下
+λf.(λs.(f (s s)) λs.(f (s s)))(anonymousMult) （3，2）=>
+
+anonymousMult((λs.(anonymousMult (s s)) λs.(anonymousMult (s s))),3,2){
+if (2==0){
+return 0
+}else{
+3+(λs.(anonymousMult (s s)) λs.(anonymousMult (s s)))()(3,1)
+}
+} =>
+
+3+anonymousMult((λs.(anonymousMult (s s)) λs.(anonymousMult (s s))),3,1) =>
+
+3+anonymousMult((λs.(anonymousMult (s s)) λs.(anonymousMult (s s))),3,1){
+if (1==0){
+return 0
+}else{
+3+(λs.(anonymousMult (s s)) λs.(anonymousMult (s s)))()(3,0)
+}
+} =>
+
+3+3+anonymousMult((λs.(anonymousMult (s s)) λs.(anonymousMult (s s))),3,0)=>
+
+3+3+anonymousMult((λs.(anonymousMult (s s)) λs.(anonymousMult (s s))),3,0){
+if (0==0){
+return 0
+}else{
+3+(λs.(anonymousMult (s s)) λs.(anonymousMult (s s)))()(3,-1)
+}
+} =>
+
+3+3+0=6
+
+完成
+
+具体的程序实现如下，因为已经有了函数式，我们要做的就是构建具体的函子
+第一个函子是(s s)
+
+实现如下：
+function applicative(s){
+return function() {return s(s)}
+}
+
+第二个函子是
+λf.(λs.(f (s s)) )
+
+实现如下：
+function self(recursiveFunc){
+return function (s){
+f=applicative(s);
+return recursiveFunc(f)}
+}
+
+通过这两个函子就可以构建不动点函数（不动点函数又叫Y函子）
+
+function lamdaY(func){return self(func)(self(func))}
+
+最后我们代入一个匿名函数就可以执行了
+
+假设计算3*4
+
+lamdaY(function(func){return function(x,y){if(y==0){return 0}else{return x+func()(x,y-1)}}})(3,4)
+
+得到结果12
+
+同样的，计算斐波那契数
+
+lamdaY(function(func){
+return function(x){
+if(x==0){return 0}
+else if(x==1){return 1}
+else {
+return func()(x-1)+func()(x-2)
+}
+}
+})(10)
+
+得到结果55
+
+实现完成
+
+关于函数式编程的理论，建议阅读
+Greg Michaelson写的
+AN INTRODUCTION TO FUNCTIONAL PROGRAMMING THROUGH LAMBDA CALCULUS
+整体解释的非常完整
+
