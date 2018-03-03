@@ -81,7 +81,7 @@ return 0
 第一个函子是(s s)
 
 实现如下：
-function applicative(s){
+function normal(s){
 return function() {return s(s)}
 }
 
@@ -91,7 +91,7 @@ return function() {return s(s)}
 实现如下：
 function self(recursiveFunc){
 return function (s){
-f=applicative(s);
+f=normal(s);
 return recursiveFunc(f)}
 }
 
