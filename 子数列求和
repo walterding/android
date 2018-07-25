@@ -1,0 +1,67 @@
+问题描述:
+对于一个给定数列，求出这个数列中满足和等于一个特定数值的全部子数列，以列表形式返回(例如[3,4,5,2,-1,1]中和为7的全部子数列为[[3,4],[5,2],[3,4,-1,1],[5,2,-1,1]])
+
+输入:
+1:原始数列
+[3,4,5,2,-1,1]
+2:特定数值
+7
+
+输出:（满足和等于所给出的特定数值的所有子数列，返回结果为列表形式）
+[[3,4],[5,2],[3,4,-1,1],[5,2,-1,1]]
+
+算法简介：
+这是一个NP时间复杂度的算法题，主要需要考虑使用动态规划的思想解题
+
+代码样例:
+//a为给定数列,dest为特定数值
+function subSum(a,dest){
+    let status=[],results=[]
+
+    function b(i,data,dest){
+
+        if(status.length<=i)
+            status.push([])
+        if(i==0){
+            let record={'value':data,'records':[data]}
+
+            if(data==dest)
+                results.push([data])
+
+            status[i].push(record)
+        }else{
+            let j=i-1
+            while(j>=0){
+                for (let k in status[j]){
+
+                    let record={'value':status[j][k]['value']+data,'records':
+                        status[j][k]['records'].concat(data)}
+
+
+                    status[j+1].push(record)
+
+                    if(status[j][k]['value']+data==dest){
+                        results.push(record['records'])
+                    }
+
+                }
+
+                j--
+
+            }
+
+            let record={'value':data,'records':[data]}
+            if(data==dest)
+                results.push(record['records'])
+
+            status[0].push(record)
+        }
+    }
+
+
+    for(let i in a){
+        b(i,a[i],dest)
+    }
+    
+    return results
+}
