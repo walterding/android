@@ -1,6 +1,7 @@
 /**
  * Created by hinotohui on 18/10/31.
  */
+const request=require('request')
 
 class Promise2{
     constructor(f){
@@ -43,6 +44,7 @@ class Promise2{
     }
 }
 
+/*
 new Promise2((resolve,reject)=>{
     setTimeout(()=>{
         console.log(1)
@@ -50,3 +52,15 @@ new Promise2((resolve,reject)=>{
         console.log(2)
     },0)
 }).then(()=>{setTimeout(()=>{console.log(3)},1000)},()=>{console.log(-3)})
+*/
+
+
+new Promise2((resolve,reject)=>{
+    request('http://www.baidu.com', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            resolve(body) // 打印google首页
+        }else{
+            reject()
+        }
+    })
+}).then((body)=>{console.log(body)},()=>{})
