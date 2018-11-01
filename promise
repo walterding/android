@@ -58,7 +58,7 @@ new Promise2((resolve,reject)=>{
 new Promise2((resolve,reject)=>{
     request('http://www.baidu.com', function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            resolve(body) // 打印google首页
+            resolve(body)
         }else{
             reject()
         }
