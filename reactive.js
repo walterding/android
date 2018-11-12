@@ -7,6 +7,7 @@ class ReactStream{
 
     map(f){
         let s=new ReactStream()
+        
         this.subscriber=s
 
         s.transform=f
@@ -16,8 +17,8 @@ class ReactStream{
 
     asyncMap(f){
         let s=new ReactStream()
+        
         this.subscriber=s
-
         this.transform=s=>s
         this.onNext=f
 
