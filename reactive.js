@@ -36,8 +36,6 @@ class ReactStream{
 
 new ReactStream(false,function(arg){
     let that=this
-    setTimeout(()=>{
-        console.log(arg)
-        that.onNext(arg)
-    },1000)
-}).map((s)=>{return s.length}).map((s)=>{return new Promise((res)=>{setTimeout(()=>{res(s)},1000)})},true).map((s)=>{console.log(s)}).execute('http')
+    request(arg,(err,result)=>{that.onNext(result.body)})
+}).map((s)=>{return s.length}).map((s)=>{return new Promise((res)=>{setTimeout(()=>{res(s)},1000)})},true)
+  .map((s)=>{console.log(s)}).execute('http://www.baidu.com')
