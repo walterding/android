@@ -19,7 +19,7 @@ class ReactStream{
         let s=new ReactStream()
         
         this.subscriber=s
-        this.transform=s=>s
+        this.transform=data=>data
         this.onNext=f
 
         s.onSubscribe=this
