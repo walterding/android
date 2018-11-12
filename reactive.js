@@ -29,7 +29,7 @@ class ReactStream{
         if(this.onSubscribe){
             this.onSubscribe.execute(arg)
         }else{
-            this.call(arg)
+            this.call&&this.call(arg)
         }
     }
 }
