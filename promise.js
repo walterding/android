@@ -11,13 +11,13 @@ class Promise2{
             this.status=1
             process.nextTick(()=>{
                 if(a[0]&&a[0].then){
-                    a[0].then((...b)=>{
+                    a[0].then((...a)=>{
                         if(!this.resolve){
                             this.resoleWrapper=(f)=>{
-                                return f&&f(...b)
+                                return f&&f(...a)
                             }
                         }else{
-                            return this.resolve(...b)
+                            return this.resolve(...a)
                         }
                     })
                 }else{
@@ -34,7 +34,7 @@ class Promise2{
         },(...a)=>{
             this.status=2
             process.nextTick(()=>{
-                if(a[0].then){
+                if(a[0]&&a[0].then){
                     a[0].then(null,(...a)=>{
                         if(!this.reject){
                             this.rejectWrapper=(f)=>{
@@ -66,7 +66,6 @@ class Promise2{
                 this.reject=(...a)=>{
                     rej(reject(...a))
                 }
-
             }else if (this.status==1){
                 res(this.resoleWrapper(resolve))
             }else {
@@ -96,11 +95,11 @@ new Promise2((resolve,reject)=>{
             if (!error && response.statusCode == 200) {
                 resolve(body)
             }else{
-
+                reject()
             }
         })
     })
 }).then((body)=>{
     console.log(body)
-})
+},()=>{})
 
