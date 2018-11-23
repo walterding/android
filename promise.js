@@ -1,3 +1,4 @@
+
 /**
  * Created by hinotohui on 18/10/31.
  */
@@ -6,54 +7,74 @@ const request=require('request')
 class Promise2{
     constructor(f){
         this.status=0
-
         f((...a)=>{
             this.status=1
-            setTimeout(()=>{
-                if(!this.resolve){
-                    this.resoleWrapper=(f)=>{
-                        f&&f(...a)
-                    }
+            process.nextTick(()=>{
+                if(a[0]&&a[0].then){
+                    a[0].then((...b)=>{
+                        if(!this.resolve){
+                            this.resoleWrapper=(f)=>{
+                                return f&&f(...b)
+                            }
+                        }else{
+                            return this.resolve(...b)
+                        }
+                    })
                 }else{
-                    this.resolve(...a)
+                    if(!this.resolve){
+                        this.resoleWrapper=(f)=>{
+                            return f&&f(...a)
+                        }
+                    }else{
+                        return this.resolve(...a)
+                    }
                 }
-            },0)
+
+            })
         },(...a)=>{
             this.status=2
-            setTimeout(()=>{
-                if(!this.reject){
-                    this.rejectWrapper=(f)=>{
-                        f&&f(...a)
-                    }
+            process.nextTick(()=>{
+                if(a[0].then){
+                    a[0].then(null,(...a)=>{
+                        if(!this.reject){
+                            this.rejectWrapper=(f)=>{
+                                return f&&f(...a)
+                            }
+                        }else{
+                            return this.reject(...a)
+                        }
+                    })
                 }else{
-                    this.reject(...a)
+                    if(!this.reject){
+                        this.rejectWrapper=(f)=>{
+                            return f&&f(...a)
+                        }
+                    }else{
+                        return this.reject(...a)
+                    }
                 }
-            },0)
+            })
         })
     }
 
     then(resolve,reject){
-        if(this.status==0){
-            this.resolve=resolve
-            this.reject=reject
-        }else if (this.status==1){
-            this.resoleWrapper(resolve)
-        }else {
-            this.rejectWrapper(reject)
-        }
+        return new Promise2((res,rej)=>{
+            if(this.status==0){
+                this.resolve=(...a)=>{
+                    res(resolve(...a))
+                }
+                this.reject=(...a)=>{
+                    rej(reject(...a))
+                }
+
+            }else if (this.status==1){
+                res(this.resoleWrapper(resolve))
+            }else {
+                rej(this.rejectWrapper(reject))
+            }
+        })
     }
 }
-
-/*
-new Promise2((resolve,reject)=>{
-    setTimeout(()=>{
-        console.log(1)
-        resolve()
-        console.log(2)
-    },0)
-}).then(()=>{setTimeout(()=>{console.log(3)},1000)},()=>{console.log(-3)})
-*/
-
 
 new Promise2((resolve,reject)=>{
     request('http://www.baidu.com', function (error, response, body) {
@@ -63,4 +84,23 @@ new Promise2((resolve,reject)=>{
             reject()
         }
     })
-}).then((body)=>{console.log(body)},()=>{})
+}).then((body)=>{return body},()=>{}).then((body)=>{return new Promise2(
+    (res)=>{
+        setTimeout(()=>{
+            res(body)
+        },1000)
+    }
+)}).then((body)=>{
+    return new Promise2((resolve,reject)=>{
+        request('http://www.sogou.com', function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                resolve(body)
+            }else{
+
+            }
+        })
+    })
+}).then((body)=>{
+    console.log(body)
+})
+
