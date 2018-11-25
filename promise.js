@@ -10,7 +10,7 @@ class Promise2{
 
         f((...a)=>{
             this.status=1
-            
+
             if(!this.resolve){
                 this.resolveWrapper=(f)=>{
                     return f&&f(...a)
@@ -47,11 +47,20 @@ class Promise2{
     }
 }
 
-new Promise2((resolve)=>{
+let a=new Promise2((resolve)=>{
     setTimeout(()=>{
         resolve(100)
     },1000)
 }).then((body)=>{return new Promise2((resolve)=>{
     setTimeout(()=>{
         resolve(100+body)
-    },1000)})}).then((body)=>{console.log(body)})
+    },1000)})})
+setTimeout(()=>{
+    a.then((body)=>{return new Promise2((res)=>{
+        request('http://www.baidu.com',(err,html)=>{
+            res(html)
+        })
+    })}).then((body)=>{
+        console.log(body.body)
+    })
+},100)
