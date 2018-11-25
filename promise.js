@@ -9,51 +9,23 @@ class Promise2{
         this.status=0
         f((...a)=>{
             this.status=1
-            process.nextTick(()=>{
-                if(a[0]&&a[0].then){
-                    a[0].then((...a)=>{
-                        if(!this.resolve){
-                            this.resoleWrapper=(f)=>{
-                                return f&&f(...a)
-                            }
-                        }else{
-                            return this.resolve(...a)
-                        }
-                    })
-                }else{
-                    if(!this.resolve){
-                        this.resoleWrapper=(f)=>{
-                            return f&&f(...a)
-                        }
-                    }else{
-                        return this.resolve(...a)
+            if(a[0]&&a[0].then){
+                if(!this.resolve){
+                    this.resolveWrapper=(f)=>{
+                        return a[0].then(f)
                     }
-                }
-
-            })
-        },(...a)=>{
-            this.status=2
-            process.nextTick(()=>{
-                if(a[0]&&a[0].then){
-                    a[0].then(null,(...a)=>{
-                        if(!this.reject){
-                            this.rejectWrapper=(f)=>{
-                                return f&&f(...a)
-                            }
-                        }else{
-                            return this.reject(...a)
-                        }
-                    })
                 }else{
-                    if(!this.reject){
-                        this.rejectWrapper=(f)=>{
-                            return f&&f(...a)
-                        }
-                    }else{
-                        return this.reject(...a)
-                    }
+                   return a[0].then(this.resolve)
                 }
-            })
+            }else{
+                if(!this.resolve){
+                    this.resolveWrapper=(f)=>{
+                        return f&&f(...a)
+                    }
+                }else{
+                    return this.resolve(...a)
+                }
+            }
         })
     }
 
@@ -67,7 +39,7 @@ class Promise2{
                     rej(reject(...a))
                 }
             }else if (this.status==1){
-                res(this.resoleWrapper(resolve))
+                res(this.resolveWrapper(resolve))
             }else {
                 rej(this.rejectWrapper(reject))
             }
@@ -75,7 +47,7 @@ class Promise2{
     }
 }
 
-new Promise2((resolve,reject)=>{
+let a=new Promise2((resolve,reject)=>{
     request('http://www.baidu.com', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             resolve(body)
@@ -83,13 +55,8 @@ new Promise2((resolve,reject)=>{
             reject()
         }
     })
-}).then((body)=>{return body},()=>{}).then((body)=>{return new Promise2(
-    (res)=>{
-        setTimeout(()=>{
-            res(body)
-        },1000)
-    }
-)}).then((body)=>{
+}).then((body)=>{
+    console.log(body.length)
     return new Promise2((resolve,reject)=>{
         request('http://www.sogou.com', function (error, response, body) {
             if (!error && response.statusCode == 200) {
@@ -100,6 +67,18 @@ new Promise2((resolve,reject)=>{
         })
     })
 }).then((body)=>{
+    return body
+},()=>{}).then((body)=>{
+    return new Promise2((resolve)=>{
+        setTimeout(()=>{
+            resolve(100)
+        },0)
+    })
+}).then((body)=>{
     console.log(body)
-},()=>{})
+})
+
+setTimeout(()=>{
+    a
+},2000)
 
