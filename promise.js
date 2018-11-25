@@ -29,56 +29,26 @@ class Promise2{
         })
     }
 
-    then(resolve,reject){
-        return new Promise2((res,rej)=>{
+    then(resolve){
+        return new Promise2((res)=>{
             if(this.status==0){
                 this.resolve=(...a)=>{
                     res(resolve(...a))
                 }
-                this.reject=(...a)=>{
-                    rej(reject(...a))
-                }
-            }else if (this.status==1){
+            }else{
                 res(this.resolveWrapper(resolve))
-            }else {
-                rej(this.rejectWrapper(reject))
             }
         })
     }
 }
 
-let a=new Promise2((resolve,reject)=>{
-    request('http://www.baidu.com', function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            resolve(body)
-        }else{
-            reject()
-        }
-    })
-}).then((body)=>{
-    console.log(body.length)
-    return new Promise2((resolve,reject)=>{
-        request('http://www.sogou.com', function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                resolve(body)
-            }else{
-                reject()
-            }
-        })
-    })
-}).then((body)=>{
-    return body
-},()=>{}).then((body)=>{
+new Promise2((resolve)=>{
+    resolve(100)
+}).then((body)=>{return body}).then((body)=>{
     return new Promise2((resolve)=>{
         setTimeout(()=>{
-            resolve(100)
-        },0)
-    })
-}).then((body)=>{
-    console.log(body)
+           resolve(body+200)
+        },500)
+
+    }).then((body)=>{console.log(body)})
 })
-
-setTimeout(()=>{
-    a
-},2000)
-
