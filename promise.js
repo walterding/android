@@ -10,23 +10,13 @@ class Promise2{
 
         f((...a)=>{
             this.status=1
-
-            if(a[0]&&a[0].then){
-                if(!this.resolve){
-                    this.resolveWrapper=(f)=>{
-                        return a[0].then(f)
-                    }
-                }else{
-                   return a[0].then(this.resolve)
+            
+            if(!this.resolve){
+                this.resolveWrapper=(f)=>{
+                    return f&&f(...a)
                 }
             }else{
-                if(!this.resolve){
-                    this.resolveWrapper=(f)=>{
-                        return f&&f(...a)
-                    }
-                }else{
-                    return this.resolve(...a)
-                }
+                return this.resolve(...a)
             }
         })
     }
@@ -34,6 +24,7 @@ class Promise2{
     then(resolve){
         return new Promise2((res)=>{
             if(this.status==0){
+                // return a[0].then(this.resolve)
                 this.resolve=(...a)=>{
                     let result=resolve(...a)
                     if(result&&result.then){
@@ -44,7 +35,9 @@ class Promise2{
                 }
             }else{
                 let result=this.resolveWrapper(resolve)
+
                 if(result&&result.then){
+
                     result.then(res)
                 }else{
                     res(result)
@@ -55,7 +48,10 @@ class Promise2{
 }
 
 new Promise2((resolve)=>{
-    resolve(100)
-}).then((body)=>{return body}).then((body)=>{
-    console.log(body)
-})
+    setTimeout(()=>{
+        resolve(100)
+    },1000)
+}).then((body)=>{return new Promise2((resolve)=>{
+    setTimeout(()=>{
+        resolve(100+body)
+    },1000)})}).then((body)=>{console.log(body)})
