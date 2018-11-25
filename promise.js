@@ -35,9 +35,7 @@ class Promise2{
                 }
             }else{
                 let result=this.resolveWrapper(resolve)
-
                 if(result&&result.then){
-
                     result.then(res)
                 }else{
                     res(result)
