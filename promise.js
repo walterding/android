@@ -1,8 +1,6 @@
-
 /**
  * Created by hinotohui on 18/10/31.
  */
-const request=require('request')
 
 class Promise2{
     constructor(f){
@@ -50,22 +48,25 @@ let a=new Promise2((resolve)=>{
 }).then((body)=>{
     return body
 })
-a.then((body)=>{
-    return new Promise2((resolve)=>{
-        return request('http://www.baidu.com',(err,html)=>{
-            resolve( html.body)
+
+setTimeout(()=>{
+    a.then((body)=>{
+        return new Promise2((resolve)=>{
+            setTimeout(()=>{})
+            resolve('html')
+        },1000)
+    }).then((body)=>{
+        console.log(body)
+        return body.length+'aaa'
+    }).then((body)=>{
+        return new Promise2((resolve)=>{
+            console.log('123')
+            setTimeout(()=>{
+                resolve(body)
+            },1500)
         })
+    }).then((body)=>{
+        console.log(body)
     })
-}).then((body)=>{
-    console.log(body)
-    return body.length+'aaa'
-}).then((body)=>{
-    return new Promise2((resolve)=>{
-        console.log('123')
-        setTimeout(()=>{
-            resolve(body)
-        },1500)
-    })
-}).then((body)=>{
-    console.log(body)
-})
+},1000)
+
