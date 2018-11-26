@@ -47,23 +47,25 @@ let a=new Promise2((resolve)=>{
     setTimeout(()=>{
         resolve(100)
     },1000)
-}).then((body)=>{return new Promise2((resolve)=>{
-    setTimeout(()=>{
-        resolve(''+body)
-    },1000)})})
-setTimeout(()=>{
-    a.then((body)=>{return new Promise2((res)=>{
-        request('http://www.baidu.com',(err,html)=>{
-            res(html)
+}).then((body)=>{
+    return body
+})
+a.then((body)=>{
+    return new Promise2((resolve)=>{
+        return request('http://www.baidu.com',(err,html)=>{
+            resolve( html.body)
         })
-    })}).then((body)=>{
-        return body.body.length
-    }).then((body)=>{
-        return new Promise2((resolve)=>{
-            setTimeout(()=>{
-                resolve('aaa'+body)
-            },1000)})
-    }).then((body)=>{
-        console.log(body)
     })
-},100)
+}).then((body)=>{
+    console.log(body)
+    return body.length+'aaa'
+}).then((body)=>{
+    return new Promise2((resolve)=>{
+        console.log('123')
+        setTimeout(()=>{
+            resolve(body)
+        },1500)
+    })
+}).then((body)=>{
+    console.log(body)
+})
