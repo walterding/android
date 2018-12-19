@@ -2,6 +2,12 @@
  * Created by hinotohui on 18/10/31.
  */
 
+/*
+type IO a=(a->Result)->Result
+bindIO m k cont=m(\a -> k a cont)
+unitIO r cont = cont r
+*/
+
 class Promise2{
     constructor(f){
         this.status=0
